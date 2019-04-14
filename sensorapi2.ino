@@ -2,8 +2,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_TSL2561_U.h>
 
-/* Tämä koodi on C++:aa !!!!!!!!!
-    
+/*    
    This driver uses the Adafruit unified sensor library (Adafruit_Sensor),
    which provides a common 'type' for sensor data and some helper functions.
    
@@ -23,14 +22,14 @@
    Connect VDD to 3.3V or 5V (whatever your logic level is)
    Connect GROUND to common ground
 
+   Digital 12 to control of light output (nevation vs digital 13)
+   Digital 13 to control of light output (negation vs digital 12)
+
    I2C Address
    ===========
-   The address will be different depending on whether you leave
-   the ADDR pin floating (addr 0x39), or tie it to ground or vcc. 
-   The default addess is 0x39, which assumes the ADDR pin is floating
-   (not connected to anything).  If you set the ADDR pin high
-   or low, use TSL2561_ADDR_HIGH (0x49) or TSL2561_ADDR_LOW
-   (0x29) respectively.
+   Default address is 0x39 (floating)
+                      0x29 (tie to ground)  TSL2561_ADDR_LOW
+                      0x49 (tie to vcc)     TSL2561_ADDR_HIGH
 
    Sarjamonitorin tulostus
    =======================
@@ -43,7 +42,7 @@
     
    History
    =======
-   2013/JAN/31  - First version (KTOWN)
+   14.04.2019 - First version
 */
    
 Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
@@ -93,14 +92,16 @@ void configureSensor()
 /**************************************************************************
     Arduino setup function (automatically called at startup)
 **************************************************************************/
-const int lightPin = 13;  /* Valo-ohjauksen nasta */
+const int lightPin1 = 13;  /* Valo-ohjauksen nasta */
+const int lightPin2 = 12;  /* Valo-ohjauksen negaatio nasta */
 
 void setup()
 {
   Serial.begin(9600);
   Serial.println("Light Sensor Test"); Serial.println("");
 
-  pinMode(lightPin, OUTPUT);
+  pinMode(lightPin1, OUTPUT);
+  pinMode(lightPin2, OUTPUT);
   
   /* Initialise the sensor */
   //use tsl.begin() to default to Wire, 
@@ -173,7 +174,8 @@ void loop()
         {
           slowedLoop = slowedLoop - 1;
           /* asetetaan valon ohjauspinni ylös */
-          digitalWrite(lightPin, HIGH);
+          digitalWrite(lightPin1, HIGH);
+          digitalWrite(lightPin2, LOW);
             if (light < 1)
             {
               /* asetetaan valon sytyttyä vertailarvo */
@@ -200,7 +202,8 @@ void loop()
         {
           slowedLoop = slowedLoop + 1;
           /* asetetaan valon ohjauspinni alas */
-          digitalWrite(lightPin, LOW);
+          digitalWrite(lightPin1, LOW);
+          digitalWrite(lightPin2, HIGH);
             if (light > 0)
             {
               /* aseteaan valon sammuttua vertailarvo */
