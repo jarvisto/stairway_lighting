@@ -33,16 +33,22 @@
 
    Sarjamonitorin tulostus
    =======================
-
    xx.xx lux  anturin mittaama ympäristön valoisuus
    xx         nopeita muutoksia vastustavan laskurin arvo
    x          0 - valo ei pala, 1 - valo palaa
    xxx        valoisuuden raja-arvo, johon vertailua tehdään
    xxxxx      LIGHT OFF / LIGHT ON
+
+   Shield-kortti
+   =============
+   Relekorttina toimii Electrow.com myymä neljän releen toteutus (D4-D7)
+   Kortti on varsinaisesti tarkoitettu Arduino Duemilanove:n kanssa käytettäväksi ja
+   Unolla jääkin siksi läpi kytkemättä I2C:n ohjaus ja 5V pinnit.
     
    History
    =======
    14.04.2019 - First version
+   16.04.2019 - Added control pins to relay shield
 */
    
 Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
@@ -92,16 +98,21 @@ void configureSensor()
 /**************************************************************************
     Arduino setup function (automatically called at startup)
 **************************************************************************/
-const int lightPin1 = 13;  /* Valo-ohjauksen nasta */
-const int lightPin2 = 12;  /* Valo-ohjauksen negaatio nasta */
+
+const int relayPin1 = 4;   /* Ensimmäisen releen ohjauslähtö */
+const int relayPin2 = 5;   /* Toisen releen ohjauslähtö */
+const int relayPin3 = 6;   /* Kolmannen releen ohjauslähtö */
+const int relayPin4 = 7;   /* Neljännen releen ohjauslähtö */
 
 void setup()
 {
   Serial.begin(9600);
   Serial.println("Light Sensor Test"); Serial.println("");
 
-  pinMode(lightPin1, OUTPUT);
-  pinMode(lightPin2, OUTPUT);
+  pinMode(relayPin1, OUTPUT);
+  pinMode(relayPin2, OUTPUT);
+  pinMode(relayPin3, OUTPUT);
+  pinMode(relayPin4, OUTPUT);
   
   /* Initialise the sensor */
   //use tsl.begin() to default to Wire, 
@@ -174,8 +185,10 @@ void loop()
         {
           slowedLoop = slowedLoop - 1;
           /* asetetaan valon ohjauspinni ylös */
-          digitalWrite(lightPin1, HIGH);
-          digitalWrite(lightPin2, LOW);
+          digitalWrite(relayPin1, HIGH);
+          digitalWrite(relayPin2, LOW);
+          digitalWrite(relayPin3, LOW);
+          digitalWrite(relayPin4, LOW);
             if (light < 1)
             {
               /* asetetaan valon sytyttyä vertailarvo */
@@ -202,8 +215,10 @@ void loop()
         {
           slowedLoop = slowedLoop + 1;
           /* asetetaan valon ohjauspinni alas */
-          digitalWrite(lightPin1, LOW);
-          digitalWrite(lightPin2, HIGH);
+          digitalWrite(relayPin1, LOW);
+          digitalWrite(relayPin2, LOW);
+          digitalWrite(relayPin3, LOW);
+          digitalWrite(relayPin4, LOW);
             if (light > 0)
             {
               /* aseteaan valon sammuttua vertailarvo */
